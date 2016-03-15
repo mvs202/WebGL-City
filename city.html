@@ -79,7 +79,7 @@ function addObelisk(x, y, z, hue, sat, lts) {
       obeliskGeometry.faces[i].color.set(c2);
       }
     }
-	return obeliskGeometry;
+  return obeliskGeometry;
   }
 
 function init() {
@@ -110,53 +110,52 @@ function init() {
   renderer.setClearColor(0x202040);
   renderer.setSize( window.innerWidth, window.innerHeight );
   document.body.appendChild( renderer.domElement );
-
-    camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 3000 );
-    camera.position.y = 80;
-
-    controls = new THREE.FirstPersonControls( camera );
-    controls.movementSpeed = 20;
-    controls.lookSpeed = 0.05;
-    controls.lookVertical = true;
-
+  camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 3000 );
+  camera.position.y = 80;
+  controls = new THREE.FirstPersonControls( camera );
+  controls.movementSpeed = 20;
+  controls.lookSpeed = 0.05;
+  controls.lookVertical = true;
     scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x000000, 0.0015);  // color, density
-
     light = new THREE.HemisphereLight(0xffffff , 0xffffff, 1 );  // skyColorHex, groundColorHex, intensity
     scene.add( light );
-
     var plane = new THREE.Mesh( new THREE.PlaneGeometry( 400, 400 ), new THREE.MeshBasicMaterial( { color: 0x101020 } ) );
-    plane.rotation.x = - 90 * Math.PI / 180;
-    scene.add( plane );
-
+    plane.rotation.x = -Math.PI/2;
+    scene.add(plane);
     var city = new THREE.Geometry();
     for (var i = 0; i < 5000; i ++) {
-      if (i == 0) {var geometry = addObelisk(1, 1, 1, 0, 0, 1);}
-      else        {var geometry = addObelisk(1, 1, 1, Math.random(), 1, 0.6);}
+      if (i == 0) {var geometry = addObelisk(0, 0, 0, 0, 0, 1);}
+      else        {var geometry = addObelisk(0, 0, 0, Math.random(), 1, 0.6);}
       var building = new THREE.Mesh(geometry);
       do {
       	building.position.x = Math.random();
       	building.position.z = Math.random();
         } while (!inside([building.position.x, building.position.z], dc))
-      if (i == 0) {building.position.x = 0.500; building.position.z = 0.535};
+      if (i == 0) {
+        building.position.x = 0.500;
+        building.position.z = 0.535
+        }
       building.position.x = Math.floor(building.position.x*400 - 200);
       building.position.z = Math.floor(building.position.z*400 - 200);
-      //} while (Math.abs(building.position.x) < 20 || Math.abs(building.position.z) < 20)
+    if (i == 0) {
+      console.log(building.position.x);
+      console.log(building.position.z);
+      }
       if (i == 0) {
-        building.scale.x = building.scale.z = 200;
-        building.scale.y = 200;
+        building.scale.x = building.scale.z = 64;
+        building.scale.y = 64;
         }
       else {
         building.scale.x = building.scale.z = Math.random() * Math.random() * Math.random() * Math.random() * 50 + 10;
         building.scale.y = ( Math.random() * Math.random() * Math.random() * building.scale.x ) * 8 + 8;
         }
     	var geometry = building.geometry;
-  	  THREE.GeometryUtils.merge( city, building );
+  	  THREE.GeometryUtils.merge(city, building);
       }
-    var mesh = new THREE.Mesh( city, new THREE.MeshLambertMaterial( {  vertexColors: THREE.VertexColors } ) );
-    scene.add( mesh );
-
-    var info = document.createElement( 'div' );
+    var mesh = new THREE.Mesh(city, new THREE.MeshLambertMaterial({vertexColors: THREE.VertexColors}));
+    scene.add(mesh);
+    var info = document.createElement('div');
     info.style.position = 'absolute';
     info.style.left = '0';
     info.style.top = '15px';
