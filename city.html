@@ -1,6 +1,7 @@
+<!-- Based on @mrdoob's "Procedural City" http://mrdoob.com/lab/javascript/webgl/city/01/ -->
 <html>
 <head>
-<title>City 0.1</title>
+<title>City of Washington Monuments</title>
 <style>
 body {
   background-color: #000000;
@@ -8,6 +9,13 @@ body {
   cursor: url(cursor.png), auto;
   margin: 0;
   overflow: hidden;
+  }
+#instructions {
+  position: absolute;
+  top: 15px;
+  width: 100%;
+  color: #BBBBFF;
+  text-align: center;
   }
 </style>
 </head>
@@ -28,13 +36,12 @@ function inside(point, vs) {
   for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
     var xi = vs[i][0], yi = vs[i][1];
     var xj = vs[j][0], yj = vs[j][1];
-    var intersect = ((yi > y) != (yj > y)) && (x < (xj - xi)*(y - yi)/(yj - yi) + xi);
-    if (intersect) inside = !inside;
+    if (((yi > y) != (yj > y)) && (x < (xj - xi)*(y - yi)/(yj - yi) + xi)) inside = !inside;
     }
   return inside;
   };
 
-function addObelisk(x, y, z, hue, sat, lts) {
+function addObelisk(hue, sat, lts) {
   var obeliskGeometry = new THREE.Geometry();
   var height = 1;  // the Washington Monument is 169.29 meters high
   var pyramidBase = 0.9*height;
@@ -42,17 +49,17 @@ function addObelisk(x, y, z, hue, sat, lts) {
   var bottomHalfWidth = 0.05*height;
 	// Define each vertex:
   // The bottom plane:
-  obeliskGeometry.vertices.push(new THREE.Vector3(x + bottomHalfWidth, 0,          z + bottomHalfWidth));
-  obeliskGeometry.vertices.push(new THREE.Vector3(x + bottomHalfWidth, 0,          z - bottomHalfWidth));
-  obeliskGeometry.vertices.push(new THREE.Vector3(x - bottomHalfWidth, 0,          z - bottomHalfWidth));
-  obeliskGeometry.vertices.push(new THREE.Vector3(x - bottomHalfWidth, 0,          z + bottomHalfWidth));
+  obeliskGeometry.vertices.push(new THREE.Vector3( bottomHalfWidth,            0,  bottomHalfWidth));
+  obeliskGeometry.vertices.push(new THREE.Vector3( bottomHalfWidth,            0, -bottomHalfWidth));
+  obeliskGeometry.vertices.push(new THREE.Vector3(-bottomHalfWidth,            0, -bottomHalfWidth));
+  obeliskGeometry.vertices.push(new THREE.Vector3(-bottomHalfWidth,            0,  bottomHalfWidth));
   // Base of the pyramid:
-  obeliskGeometry.vertices.push(new THREE.Vector3(x + pyramidHalfWidth, pyramidBase, z + pyramidHalfWidth));
-  obeliskGeometry.vertices.push(new THREE.Vector3(x + pyramidHalfWidth, pyramidBase, z - pyramidHalfWidth));
-  obeliskGeometry.vertices.push(new THREE.Vector3(x - pyramidHalfWidth, pyramidBase, z - pyramidHalfWidth));
-  obeliskGeometry.vertices.push(new THREE.Vector3(x - pyramidHalfWidth, pyramidBase, z + pyramidHalfWidth));
+  obeliskGeometry.vertices.push(new THREE.Vector3( pyramidHalfWidth, pyramidBase,  pyramidHalfWidth));
+  obeliskGeometry.vertices.push(new THREE.Vector3( pyramidHalfWidth, pyramidBase, -pyramidHalfWidth));
+  obeliskGeometry.vertices.push(new THREE.Vector3(-pyramidHalfWidth, pyramidBase, -pyramidHalfWidth));
+  obeliskGeometry.vertices.push(new THREE.Vector3(-pyramidHalfWidth, pyramidBase,  pyramidHalfWidth));
   // The tippy-top:
-  obeliskGeometry.vertices.push(new THREE.Vector3(x,        height, z));
+  obeliskGeometry.vertices.push(new THREE.Vector3(0, height, 0));
   // Create the faces:
   // Floor:
   obeliskGeometry.faces.push(new THREE.Face3(0, 2, 1), new THREE.Face3(0, 3, 2));
@@ -106,74 +113,61 @@ function init() {
     // Maryland border
     [1.000,1.000],[1.000,0]
     ];
-  renderer = new THREE.WebGLRenderer( { antialias: true, alpha: false } );
+  renderer = new THREE.WebGLRenderer({antialias: true, alpha: false});
   renderer.setClearColor(0x202040);
-  renderer.setSize( window.innerWidth, window.innerHeight );
-  document.body.appendChild( renderer.domElement );
-  camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 3000 );
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+  camera = new THREE.PerspectiveCamera(40, window.innerWidth/window.innerHeight, 1, 3000);
   camera.position.y = 80;
-  controls = new THREE.FirstPersonControls( camera );
-  controls.movementSpeed = 20;
+  controls = new THREE.FirstPersonControls(camera);
+  controls.movementSpeed = 25;
   controls.lookSpeed = 0.05;
   controls.lookVertical = true;
-    scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x000000, 0.0015);  // color, density
-    light = new THREE.HemisphereLight(0xffffff , 0xffffff, 1 );  // skyColorHex, groundColorHex, intensity
-    scene.add( light );
-    var plane = new THREE.Mesh( new THREE.PlaneGeometry( 400, 400 ), new THREE.MeshBasicMaterial( { color: 0x101020 } ) );
-    plane.rotation.x = -Math.PI/2;
-    scene.add(plane);
-    var city = new THREE.Geometry();
-    for (var i = 0; i < 5000; i ++) {
-      if (i == 0) {var geometry = addObelisk(0, 0, 0, 0, 0, 1);}
-      else        {var geometry = addObelisk(0, 0, 0, Math.random(), 1, 0.6);}
-      var building = new THREE.Mesh(geometry);
-      do {
-      	building.position.x = Math.random();
-      	building.position.z = Math.random();
-        } while (!inside([building.position.x, building.position.z], dc))
-      if (i == 0) {
-        building.position.x = 0.500;
-        building.position.z = 0.535
-        }
-      building.position.x = Math.floor(building.position.x*400 - 200);
-      building.position.z = Math.floor(building.position.z*400 - 200);
+  scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x000000, 0.0015);  // color, density
+  light = new THREE.HemisphereLight(0xffffff , 0xffffff, 1 );  // skyColorHex, groundColorHex, intensity
+  scene.add( light );
+  var plane = new THREE.Mesh( new THREE.PlaneGeometry( 400, 400 ), new THREE.MeshBasicMaterial( { color: 0x101020 } ) );
+  plane.rotation.x = -Math.PI/2;
+  scene.add(plane);
+  var city = new THREE.Geometry();
+  for (var i = 0; i < 4000; i ++) {
+    if (i == 0) {var geometry = addObelisk(0, 0, 1);}
+    else        {var geometry = addObelisk(Math.random(), 1, 0.6);}
+    var building = new THREE.Mesh(geometry);
+    do {
+      building.position.x = Math.random();
+      building.position.z = Math.random();
+      } while (!inside([building.position.x, building.position.z], dc))
     if (i == 0) {
-      console.log(building.position.x);
-      console.log(building.position.z);
+      building.position.x = 0.500;
+      building.position.z = 0.535
       }
-      if (i == 0) {
-        building.scale.x = building.scale.z = 64;
-        building.scale.y = 64;
-        }
-      else {
-        building.scale.x = building.scale.z = Math.random() * Math.random() * Math.random() * Math.random() * 50 + 10;
-        building.scale.y = ( Math.random() * Math.random() * Math.random() * building.scale.x ) * 8 + 8;
-        }
-    	var geometry = building.geometry;
-  	  THREE.GeometryUtils.merge(city, building);
+    building.position.x = Math.floor(building.position.x*400 - 200);
+    building.position.z = Math.floor(building.position.z*400 - 200); 
+    if (i == 0) {
+      building.scale.x = building.scale.z = 64;
+      building.scale.y = 64;
       }
-    var mesh = new THREE.Mesh(city, new THREE.MeshLambertMaterial({vertexColors: THREE.VertexColors}));
-    scene.add(mesh);
-    var info = document.createElement('div');
-    info.style.position = 'absolute';
-    info.style.left = '0';
-    info.style.top = '15px';
-    info.style.width = '100%';
-    info.style.color = 'rgba(0,0,64,0.5)';
-    info.style.textAlign = 'center';
-    info.textContent = 'click and hold to move forward';
-    document.body.appendChild( info );
-    lastTime = window.performance ? performance.now() : Date.now();
+    else {
+      building.scale.x = building.scale.z = building.scale.y = Math.random()*Math.random()*Math.random()*Math.random()*45 + 15;
+      }
+    var geometry = building.geometry;
+    THREE.GeometryUtils.merge(city, building);
+    }
+  var mesh = new THREE.Mesh(city, new THREE.MeshLambertMaterial({vertexColors: THREE.VertexColors}));
+  scene.add(mesh);
+  lastTime = window.performance ? performance.now() : Date.now();
   }
 
 function animate() {
-  requestAnimationFrame( animate );
+  requestAnimationFrame(animate);
   var time = (window.performance ? performance.now() : Date.now())/1000;
-  controls.update( time - lastTime );
-  renderer.render( scene, camera );
+  controls.update(time - lastTime);
+  renderer.render(scene, camera);
   lastTime = time;
   }
 </script>
+<div id=instructions >click and hold to move forward</div>
 </body>
 </html>
