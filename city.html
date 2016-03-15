@@ -126,9 +126,9 @@ function init() {
   controls.lookVertical = true;
   scene = new THREE.Scene();
   scene.fog = new THREE.FogExp2(0x000000, 0.0015);  // color, density
-  light = new THREE.HemisphereLight(0xffffff , 0xffffff, 1 );  // skyColorHex, groundColorHex, intensity
-  scene.add( light );
-  var plane = new THREE.Mesh( new THREE.PlaneGeometry( 400, 400 ), new THREE.MeshBasicMaterial( { color: 0x101020 } ) );
+  light = new THREE.HemisphereLight(0xffffff , 0xffffff, 1);  // skyColorHex, groundColorHex, intensity
+  scene.add(light);
+  var plane = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshBasicMaterial({color: 0x101020}));
   plane.rotation.x = -Math.PI/2;
   scene.add(plane);
   var city = new THREE.Geometry();
