@@ -47,7 +47,7 @@ function addObelisk(hue, sat, lts) {
   var pyramidBase = 0.9*height;
   var pyramidHalfWidth = 0.03*height;
   var bottomHalfWidth = 0.05*height;
-	// Define each vertex:
+  // Define each vertex:
   // The bottom plane:
   obeliskGeometry.vertices.push(new THREE.Vector3( bottomHalfWidth,            0,  bottomHalfWidth));
   obeliskGeometry.vertices.push(new THREE.Vector3( bottomHalfWidth,            0, -bottomHalfWidth));
@@ -118,7 +118,8 @@ function init() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
   camera = new THREE.PerspectiveCamera(40, window.innerWidth/window.innerHeight, 1, 3000);
-  camera.position.y = 80;
+  camera.position.x = 100;
+  camera.position.y = 32;
   controls = new THREE.FirstPersonControls(camera);
   controls.movementSpeed = 25;
   controls.lookSpeed = 0.05;
@@ -131,27 +132,26 @@ function init() {
   plane.rotation.x = -Math.PI/2;
   scene.add(plane);
   var city = new THREE.Geometry();
-  for (var i = 0; i < 4000; i ++) {
-    if (i == 0) {var geometry = addObelisk(0, 0, 1);}
-    else        {var geometry = addObelisk(Math.random(), 1, 0.6);}
+  for (var i = 0; i < 3200; i ++) {
+    if (i == 0) {var geometry = addObelisk(0, 0, 1);}  // make this one white
+    else        {var geometry = addObelisk(Math.random(), 1, 0.6);}  // rainbow colors
     var building = new THREE.Mesh(geometry);
     do {
       building.position.x = Math.random();
       building.position.z = Math.random();
       } while (!inside([building.position.x, building.position.z], dc))
     if (i == 0) {
+      // put white obelisk in location of actual Washington Monument
       building.position.x = 0.500;
       building.position.z = 0.535
-      }
-    building.position.x = Math.floor(building.position.x*400 - 200);
-    building.position.z = Math.floor(building.position.z*400 - 200); 
-    if (i == 0) {
       building.scale.x = building.scale.z = 64;
       building.scale.y = 64;
       }
     else {
       building.scale.x = building.scale.z = building.scale.y = Math.random()*Math.random()*Math.random()*Math.random()*45 + 15;
       }
+    building.position.x = Math.floor(building.position.x*400 - 200);
+    building.position.z = Math.floor(building.position.z*400 - 200);
     var geometry = building.geometry;
     THREE.GeometryUtils.merge(city, building);
     }
